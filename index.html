@@ -39,8 +39,19 @@
 </head>
 <body class="w-screen h-screen m-0 p-0 bg-white flex items-center justify-center overflow-hidden transition-colors duration-200">
 
+  <!-- ==================== 0. MÀN HÌNH YÊU CẦU TOÀN MÀN HÌNH ==================== -->
+  <section id="step-fullscreen-prompt" class="flex flex-col items-center justify-center w-full h-full text-center px-4">
+    <p class="text-gray-700 text-base mb-4 font-normal">Vui lòng bật toàn màn hình để tiếp tục</p>
+    <button 
+      id="btn-fullscreen" 
+      class="px-6 py-2.5 bg-gray-900 hover:bg-black text-white text-base font-normal rounded cursor-pointer transition-colors shadow-sm outline-none border-none"
+    >
+      Bật toàn màn hình
+    </button>
+  </section>
+
   <!-- ==================== 1. MÀN HÌNH BẮT ĐẦU: CỰC KỲ TỐI GIẢN ==================== -->
-  <section id="step-start" class="flex items-center justify-center w-full h-full">
+  <section id="step-start" class="hidden flex items-center justify-center w-full h-full">
     <button 
       id="btn-click" 
       class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-normal rounded cursor-pointer transition-colors shadow-sm outline-none border-none"
@@ -176,10 +187,10 @@
         <rect x="-280" y="70" width="560" height="18" fill="#ffffff" stroke="#000000" stroke-width="2" />
       </g>
 
-      <!-- 2 BIỂN CẢNH BÁO TAM GIÁC (PHÂN BIỆT ẢNH 1 VÀ ẢNH 2) -->
+      <!-- 2 BIỂN CẢNH BÁO TAM GIÁC (THU NHỎ & DẠT SANG HAI CÁNH, KHÔNG ĐÈ LÊN MÀN HÌNH) -->
       <g id="warning-signs" class="hidden">
-        <use href="#warning-triangle" transform="translate(300, 520) scale(1.6)" />
-        <use href="#warning-triangle" transform="translate(1620, 520) scale(1.6)" />
+        <use href="#warning-triangle" transform="translate(230, 540) scale(1.15)" />
+        <use href="#warning-triangle" transform="translate(1690, 540) scale(1.15)" />
       </g>
     </svg>
   </section>
@@ -210,6 +221,7 @@
 
   <!-- ==================== LOGIC KỊCH BẢN CHÍNH ==================== -->
   <script>
+    const stepFullscreenPrompt = document.getElementById('step-fullscreen-prompt');
     const stepStart = document.getElementById('step-start');
     const stepLoading = document.getElementById('step-loading');
     const stepGraphic = document.getElementById('step-graphic');
@@ -217,6 +229,7 @@
     const stepExplosion = document.getElementById('step-explosion');
     const stepBlackout = document.getElementById('step-blackout');
 
+    const btnFullscreen = document.getElementById('btn-fullscreen');
     const btnClick = document.getElementById('btn-click');
     const warningSigns = document.getElementById('warning-signs');
     const countdownText = document.getElementById('countdown-text');
@@ -225,10 +238,32 @@
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    // Bắt đầu khi nhấn nút (chỉ chạy đúng 1 lần duy nhất)
+    // Bước 0: Yêu cầu bật toàn màn hình trước khi hiển thị nút "Bấm vào đây"
+    btnFullscreen.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          } else if (document.documentElement.webkitRequestFullscreen) {
+            await document.documentElement.webkitRequestFullscreen();
+          } else if (document.documentElement.msRequestFullscreen) {
+            await document.documentElement.msRequestFullscreen();
+          }
+        }
+      } catch (err) {
+        console.warn('Không thể tự động kích hoạt toàn màn hình:', err);
+      }
+
+      stepFullscreenPrompt.classList.add('hidden');
+      stepStart.classList.remove('hidden');
+      stepStart.classList.add('flex');
+    }, { once: true });
+
+    // Bắt đầu khi nhấn nút "Bấm vào đây" (chỉ chạy đúng 1 lần duy nhất)
     btnClick.addEventListener('click', async () => {
       // 1. Chuyển sang màn hình Loading trong đúng 3 giây (3000ms)
       stepStart.classList.add('hidden');
+      stepStart.classList.remove('flex');
       stepLoading.classList.remove('hidden');
       stepLoading.classList.add('flex');
 
