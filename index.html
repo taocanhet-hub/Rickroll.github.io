@@ -306,12 +306,13 @@
       countdownText.textContent = "TỰ HUỶ TRONG 1";
       await sleep(1000);
 
-      // 4. Màn hình nổ GIF
+      // 4. Màn hình nổ GIF (chỉ hiển thị đúng 1 chu kỳ nổ duy nhất ~1.3s)
       stepCountdown.classList.add('hidden');
       stepCountdown.classList.remove('flex');
 
-      const gifSrc = explosionGif.src.split('?')[0];
-      explosionGif.src = gifSrc + '?t=' + Date.now();
+      // Tải lại GIF kèm timestamp để bắt đầu chính xác từ frame đầu tiên
+      const baseGifUrl = "https://i.pinimg.com/originals/48/bc/a3/48bca33b14b5609d2da2552527a513a9.gif";
+      explosionGif.src = baseGifUrl + "?t=" + Date.now();
 
       stepExplosion.classList.remove('hidden');
       stepExplosion.classList.add('flex');
@@ -322,10 +323,11 @@
       setTimeout(() => {
         flashEffect.classList.add('hidden');
         flashEffect.classList.remove('flash-overlay');
-      }, 500);
+      }, 400);
 
-      // 5. Sau khi GIF chạy xong (~2.8 giây), tắt lịm thành màn hình đen hoàn toàn vĩnh viễn
-      await sleep(2800);
+      // 5. Cắt ngắn thời gian xuống 1300ms để bắt trọn 1 lần nổ và không kịp loop lần 2
+      await sleep(1300);
+      explosionGif.src = ""; // Huỷ load GIF để ngắt hoàn toàn
       stepExplosion.classList.add('hidden');
       stepExplosion.classList.remove('flex');
       stepBlackout.classList.remove('hidden');
